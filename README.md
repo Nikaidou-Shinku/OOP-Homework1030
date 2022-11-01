@@ -20,5 +20,5 @@ cd OOP-Homework1030
 运行：
 
 ```bash
-java -cp ./app/bin/main/ oop.homework1030.App
+java -cp ./app/build/classes/java/main/ oop.homework1030.App
 ```
