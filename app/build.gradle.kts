@@ -20,8 +20,9 @@ dependencies {
   // Use JUnit Jupiter for testing.
   testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
 
-  // This dependency is used by the application.
-  implementation("com.google.guava:guava:31.0.1-jre")
+  // These dependencies are used by the application.
+  implementation("org.dom4j:dom4j:2.1.3")
+  implementation("com.alibaba.fastjson2:fastjson2:2.0.17")
 }
 
 application {
