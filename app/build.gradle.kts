@@ -30,6 +30,19 @@ application {
   mainClass.set("oop.homework1030.App")
 }
 
+tasks.withType<Jar> {
+  manifest {
+    attributes["Main-Class"] = "oop.homework1030.App"
+  }
+
+  // Generate uber jar
+  val dependencies = configurations
+    .runtimeClasspath.get()
+    .map(::zipTree)
+  from(dependencies)
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
 tasks.named<Test>("test") {
   // Use JUnit Platform for unit tests.
   useJUnitPlatform()

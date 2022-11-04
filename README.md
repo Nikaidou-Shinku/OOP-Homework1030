@@ -11,14 +11,14 @@ git clone git@github.com:Nikaidou-Shinku/OOP-Homework1030.git
 cd OOP-Homework1030
 ```
 
-构建：
+构建并打包：
 
 ```bash
-./gradlew build
+./gradlew jar
 ```
 
 运行：
 
 ```bash
-java -cp ./app/build/classes/java/main/ oop.homework1030.App
+java -jar ./app/build/libs/app.jar
 ```

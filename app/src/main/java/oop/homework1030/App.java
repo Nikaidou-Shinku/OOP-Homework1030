@@ -5,50 +5,100 @@
  */
 package oop.homework1030;
 
+import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+
+import com.alibaba.fastjson2.JSONArray;
 
 public class App {
   private static InfoPublisher<ArrayList<StudentInfo>> publisher;
   private static ArrayList<StudentInfo> students;
 
-  private static ArrayList<UndergraduateStudent> readUndergraduateStudents() {
-    // TODO
-    return new ArrayList<UndergraduateStudent>();
-  }
-
-  private static ArrayList<GraduateStudent> readGraduateStudents() {
-    // TODO
-    return new ArrayList<GraduateStudent>();
-  }
-
-  private static ArrayList<DoctoralStudent> readDoctoralStudents() {
-    // TODO
-    return new ArrayList<DoctoralStudent>();
-  }
-
   private static void init() {
     students = new ArrayList<StudentInfo>();
 
-    students.addAll(readUndergraduateStudents());
-    students.addAll(readGraduateStudents());
-    students.addAll(readDoctoralStudents());
+    try {
+      students.addAll(UndergraduateStudent.readFromFile("us.txt"));
+    } catch (Exception e) {
+      System.err.println("[Error] Read undergraduate students failed!");
+    }
+
+    try {
+      students.addAll(GraduateStudent.readFromFile("gs.json"));
+    } catch (Exception e) {
+      System.err.println("[Error] Read graduate students failed!");
+    }
+
+    try {
+      students.addAll(DoctoralStudent.readFromFile("ds.xml"));
+    } catch (Exception e) {
+      System.err.println("[Error] Read doctoral students failed!");
+    }
+
 
     publisher = new InfoPublisher<ArrayList<StudentInfo>>();
 
     publisher.subscribe("us", (list) -> {
-      // TODO: write new list into the file
-      System.out.println("新本科生被添加！");
+      List<UndergraduateStudent> undergraduateStudents = list.stream()
+        .filter(student -> student instanceof UndergraduateStudent)
+        .map(student -> (UndergraduateStudent) student)
+        .toList();
+
+      try {
+        FileWriter out = new FileWriter("us.txt");
+        undergraduateStudents.forEach(student -> {
+          try {
+            out.write(student.toString() + "\n");
+          } catch (Exception e) {
+            System.err.println("[Error] Error occured when writing undergraduate student info!");
+          }
+        });
+        out.close();
+      } catch (Exception e) {
+        System.err.println("[Error] Write undergraduate students failed!");
+      }
     });
 
     publisher.subscribe("gs", (list) -> {
-      // TODO: write new list into the file
-      System.out.println("新研究生被添加！");
+      List<GraduateStudent> graduateStudents = list.stream()
+        .filter(student -> student instanceof GraduateStudent)
+        .map(student -> (GraduateStudent) student)
+        .toList();
+
+      JSONArray res = new JSONArray(graduateStudents);
+      try {
+        FileWriter out = new FileWriter("gs.json");
+        out.write(res.toJSONString());
+        out.close();
+      } catch (Exception e) {
+        System.err.println("[Error] Write graduate students failed!");
+      }
     });
 
     publisher.subscribe("ds", (list) -> {
-      // TODO: write new list into the file
-      System.out.println("新博士生被添加！");
+      Document doc = DocumentHelper.createDocument();
+
+      Element root = doc.addElement("doctoralStudents");
+
+      list.forEach(student -> {
+        if (student instanceof DoctoralStudent) {
+          root.add(((DoctoralStudent) student).toElement());
+        }
+      });
+
+      try {
+        FileWriter out = new FileWriter("ds.xml");
+        doc.write(out);
+        out.close();
+      } catch (Exception e) {
+        System.err.println("[Error] Write doctoral students failed!");
+      }
     });
   }
 
@@ -77,11 +127,11 @@ public class App {
 
       switch (input) {
         case "A": {
-          printAllStudents();
+          printStudents(students);
           break;
         }
         case "B": {
-          addUndergraduateStudent();
+          addUndergraduateStudent(scan);
           break;
         }
         case "C": {
@@ -93,11 +143,13 @@ public class App {
           break;
         }
         case "E": {
-          findStudentById();
+          String id = scan.nextLine();
+          findStudentById(id);
           break;
         }
         case "F": {
-          findStudentByName();
+          String name = scan.nextLine();
+          findStudentByName(name);
           break;
         }
         case "G": {
@@ -115,15 +167,17 @@ public class App {
     }
   }
 
-  private static void printAllStudents() {
-    // TODO
-    System.err.println("[TODO]");
+  private static void printStudents(ArrayList<StudentInfo> students) {
+    students.forEach(student -> System.out.println(student));
   }
 
-  private static void addUndergraduateStudent() {
-    // TODO: add one undergraduate student and produce an event
-    publisher.publish("us", students);
-    System.err.println("[TODO]");
+  private static void addUndergraduateStudent(Scanner scan) {
+    try {
+      students.add(UndergraduateStudent.readOne(scan));
+      publisher.publish("us", students);
+    } catch (Exception e) {
+      System.err.println("[Error] Invalid undergraduate student info!");
+    }
   }
 
   private static void addGraduateStudent() {
@@ -138,19 +192,52 @@ public class App {
     System.err.println("[TODO]");
   }
 
-  private static void findStudentById() {
-    // TODO
-    System.err.println("[TODO]");
+  private static void findStudentById(String id) {
+    students.forEach(student -> {
+      if (student.getStudentNumber().equals(id)) {
+        System.out.println(student);
+      }
+    });
   }
 
-  private static void findStudentByName() {
-    // TODO
-    System.err.println("[TODO]");
+  private static void findStudentByName(String name) {
+    students.forEach(student -> {
+      if (student.getStudentName().equals(name)) {
+        System.out.println(student);
+      }
+    });
   }
 
   private static void sortStudents() {
-    // TODO
-    System.err.println("[TODO]");
+    ArrayList<StudentInfo> tempStudents = new ArrayList<StudentInfo>();
+    students.forEach(student -> tempStudents.add(student));
+
+    tempStudents.sort((lhs, rhs) -> {
+      if (lhs.getClass() == rhs.getClass()) {
+        return rhs.getBirthday().compareTo(lhs.getBirthday());
+      }
+
+      if (lhs.getClass() == UndergraduateStudent.class) {
+        return -1;
+      }
+
+      if (lhs.getClass() == DoctoralStudent.class) {
+        return 1;
+      }
+
+      if (rhs.getClass() == UndergraduateStudent.class) {
+        return 1;
+      }
+
+      if (rhs.getClass() == DoctoralStudent.class) {
+        return -1;
+      }
+
+      // unreachable
+      return 0;
+    });
+
+    printStudents(tempStudents);
   }
 
   public static void main(String[] args) {
