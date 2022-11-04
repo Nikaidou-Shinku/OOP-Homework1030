@@ -135,11 +135,11 @@ public class App {
           break;
         }
         case "C": {
-          addGraduateStudent();
+          addGraduateStudent(scan);
           break;
         }
         case "D": {
-          addDoctoralStudent();
+          addDoctoralStudent(scan);
           break;
         }
         case "E": {
@@ -180,16 +180,22 @@ public class App {
     }
   }
 
-  private static void addGraduateStudent() {
-    // TODO: add one graduate student and produce an event
-    publisher.publish("gs", students);
-    System.err.println("[TODO]");
+  private static void addGraduateStudent(Scanner scan) {
+    try {
+      students.add(GraduateStudent.readOne(scan));
+      publisher.publish("gs", students);
+    } catch (Exception e) {
+      System.err.println("[Error] Invalid graduate student info!");
+    }
   }
 
-  private static void addDoctoralStudent() {
-    // TODO: add one doctoral student and produce an event
-    publisher.publish("ds", students);
-    System.err.println("[TODO]");
+  private static void addDoctoralStudent(Scanner scan) {
+    try {
+      students.add(DoctoralStudent.readOne(scan));
+      publisher.publish("ds", students);
+    } catch (Exception e) {
+      System.err.println("[Error] Invalid doctoral student info!");
+    }
   }
 
   private static void findStudentById(String id) {

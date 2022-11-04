@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Scanner;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -58,6 +59,27 @@ public class DoctoralStudent extends StudentInfo {
   }
 
   private static DateFormat formatter = new SimpleDateFormat("yyyy年MM月dd日");
+  public static DoctoralStudent readOne(Scanner scan) throws ParseException {
+    String[] args = scan.nextLine().split("_");
+
+    if (args.length != 8) {
+      throw new IllegalArgumentException("Invalid input");
+    }
+
+    Date birthday = formatter.parse(args[3]);
+
+    return new DoctoralStudent(
+      args[0],
+      args[1],
+      args[2].equals("男") ? Gender.Male : Gender.Female,
+      birthday,
+      args[4],
+      args[5],
+      args[6],
+      args[7]
+    );
+  }
+  
   private static DoctoralStudent parseStudent(Element ele) throws ParseException {
     DoctoralStudent res = new DoctoralStudent();
 

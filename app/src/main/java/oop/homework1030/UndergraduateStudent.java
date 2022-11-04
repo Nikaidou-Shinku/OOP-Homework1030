@@ -35,6 +35,7 @@ public class UndergraduateStudent extends StudentInfo {
     this.tutor = initTutor;
   }
 
+  private static DateFormat formatter = new SimpleDateFormat("yyyy年MM月dd日");
   private static UndergraduateStudent parseStudent(String input) throws ParseException {
     String[] args = input.split("_");
 
@@ -59,7 +60,6 @@ public class UndergraduateStudent extends StudentInfo {
     return parseStudent(scan.nextLine());
   }
 
-  private static DateFormat formatter = new SimpleDateFormat("yyyy年MM月dd日");
   public static ArrayList<UndergraduateStudent> readFromFile(String path) throws IOException {
     List<String> data = Files.readAllLines(Paths.get(path));
     ArrayList<UndergraduateStudent> res = new ArrayList<UndergraduateStudent>();
